@@ -27,12 +27,10 @@
     }
     
     .header {
-      border-bottom: 1px solid #333;
-      padding-bottom: 10px;
-      margin-bottom: 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      margin-bottom: 10px;
     }
     
     .unit-id {
@@ -46,27 +44,25 @@
       font-size: 11px;
     }
     
+    .separator {
+      color: #333;
+      margin: 10px 0;
+      font-size: 12px;
+    }
+    
+    .mission-label {
+      color: #888;
+      font-size: 12px;
+      margin-bottom: 5px;
+      letter-spacing: 1px;
+    }
+    
     .mission-line {
       color: #fff;
       font-weight: bold;
       font-size: 16px;
-      margin-bottom: 15px;
+      margin-bottom: 20px;
       letter-spacing: 0.5px;
-    }
-    
-    .scenario-input {
-      width: 100%;
-      background: transparent;
-      border: none;
-      color: #fff;
-      font-family: 'Courier New', monospace;
-      font-size: 16px;
-      font-weight: bold;
-      letter-spacing: 0.5px;
-      outline: none;
-      margin-bottom: 15px;
-      border-bottom: 1px solid #333;
-      padding: 5px 0;
     }
     
     .rank-header {
@@ -85,7 +81,6 @@
       justify-content: space-between;
       align-items: center;
       padding: 3px 0;
-      border-bottom: 1px solid #111;
     }
     
     .rank-number {
@@ -111,46 +106,11 @@
       color: #666;
       font-size: 11px;
       margin-top: 15px;
-      padding-top: 10px;
-      border-top: 1px solid #222;
     }
     
     .processing {
       color: #888;
-    }
-    
-    .options-section {
-      margin-top: 20px;
-    }
-    
-    .option-input {
-      width: 100%;
-      background: transparent;
-      border: none;
-      border-bottom: 1px solid #222;
-      color: #c0c0c0;
-      font-family: 'Courier New', monospace;
-      font-size: 12px;
       padding: 3px 0;
-      margin-bottom: 2px;
-      outline: none;
-    }
-    
-    .option-input:focus {
-      border-bottom-color: #444;
-    }
-    
-    .cursor {
-      animation: blink 1s infinite;
-    }
-    
-    @keyframes blink {
-      50% { opacity: 0; }
-    }
-    
-    .latency {
-      color: #555;
-      font-size: 10px;
     }
   </style>
 </head>
@@ -161,62 +121,48 @@
       <div class="timestamp" id="timestamp">00:00:00Z</div>
     </div>
     
-    <div class="mission-line">MISSION:</div>
-    <input 
-      type="text" 
-      class="scenario-input" 
-      id="scenarioInput"
-      value="AIR-DEF / 18 INBOUND / CORRIDOR LIVE"
-      autocomplete="off"
-      spellcheck="false"
-    />
+    <div class="separator">------------------------------------------------</div>
     
-    <div class="rank-header">ARBITER RANK:</div>
+    <div class="mission-label">MISSION:</div>
+    <div class="mission-line" id="missionLine">AIR-DEF / 18 INBOUND / CORRIDOR LIVE</div>
+    
+    <div class="rank-header" id="rankHeader">ARBITER RANK:</div>
     <div class="rank-list" id="rankList">
-      <div class="processing">CALCULATING...</div>
+      <div class="processing">COMPUTE</div>
     </div>
     
-    <div class="options-section" id="optionsSection" style="display: none;">
-      <div style="color: #666; font-size: 11px; margin-bottom: 5px;">ASSETS:</div>
-      <input type="text" class="option-input" value="THAAD β" data-index="0">
-      <input type="text" class="option-input" value="Patriot A" data-index="1">
-      <input type="text" class="option-input" value="EW Dampening" data-index="2">
-      <input type="text" class="option-input" value="NASAMS Net" data-index="3">
-      <input type="text" class="option-input" value="Iron Dome C" data-index="4">
-    </div>
+    <div class="status-line" id="statusText">COMPUTE: &lt;50ms</div>
     
-    <div class="status-line">
-      <span id="statusText">Latency: 42ms</span>
-      <span class="latency" style="margin-left: 20px;">Recalc on ROE shift: instantaneous</span>
-    </div>
+    <div class="separator">------------------------------------------------</div>
   </div>
 
   <script>
-    let options = ['THAAD β', 'Patriot A', 'EW Dampening', 'NASAMS Net', 'Iron Dome C'];
+    let currentScenario = 'initial';
     let isProcessing = false;
     
     const scenarios = {
-      'AIR-DEF / 18 INBOUND / CORRIDOR LIVE': [
-        { option: 'THAAD β', score: 0.842 },
-        { option: 'Patriot A', score: 0.804 },
-        { option: 'EW Dampening', score: 0.611 },
-        { option: 'NASAMS Net', score: 0.588 },
-        { option: 'Iron Dome C', score: 0.402 }
-      ],
-      'AIR-DEF / 18 INBOUND / CIVILIAN AIRCRAFT ENTERS GRID': [
-        { option: 'EW Dampening', score: 0.891 },
-        { option: 'NASAMS Net', score: 0.823 },
-        { option: 'THAAD β', score: 0.756 },
-        { option: 'Patriot A', score: 0.634 },
-        { option: 'Iron Dome C', score: 0.445 }
-      ],
-      'CYBER-RESP / CRITICAL INFRASTRUCTURE / ATTRIBUTION UNCLEAR': [
-        { option: 'Emergency Backup', score: 0.813 },
-        { option: 'Selective Shutdown', score: 0.742 },
-        { option: 'Coordinated Defense', score: 0.687 },
-        { option: 'Network Isolation', score: 0.634 },
-        { option: 'Active Counterattack', score: 0.456 }
-      ]
+      initial: {
+        mission: 'AIR-DEF / 18 INBOUND / CORRIDOR LIVE',
+        header: 'ARBITER RANK:',
+        results: [
+          { option: 'THAAD β', score: 0.842 },
+          { option: 'Patriot A', score: 0.804 },
+          { option: 'EW Dampening', score: 0.611 },
+          { option: 'NASAMS Net', score: 0.588 },
+          { option: 'Iron Dome C', score: 0.402 }
+        ]
+      },
+      roeShift: {
+        mission: 'AIR-DEF / 18 INBOUND / CIVILIAN AIRCRAFT ENTERS GRID',
+        header: 'ARBITER RANK (ROE SHIFT APPLIED):',
+        results: [
+          { option: 'EW Dampening', score: 0.891 },
+          { option: 'NASAMS Net', score: 0.823 },
+          { option: 'THAAD β', score: 0.756 },
+          { option: 'Patriot A', score: 0.634 },
+          { option: 'Iron Dome C', score: 0.445 }
+        ]
+      }
     };
     
     function updateTimestamp() {
@@ -225,28 +171,23 @@
       document.getElementById('timestamp').textContent = utc;
     }
     
-    function calculate() {
+    function displayScenario(scenarioKey) {
       if (isProcessing) return;
       
-      const scenario = document.getElementById('scenarioInput').value.trim();
+      const scenario = scenarios[scenarioKey];
+      const missionLine = document.getElementById('missionLine');
+      const rankHeader = document.getElementById('rankHeader');
       const rankList = document.getElementById('rankList');
       const statusText = document.getElementById('statusText');
       
-      if (!scenario) {
-        rankList.innerHTML = '<div class="processing">STANDBY</div>';
-        statusText.textContent = 'Standby';
-        return;
-      }
-      
       isProcessing = true;
-      rankList.innerHTML = '<div class="processing">CALCULATING...</div>';
-      statusText.textContent = 'Processing...';
+      rankList.innerHTML = '<div class="processing">COMPUTE</div>';
       
       setTimeout(() => {
-        const results = scenarios[scenario] || generateResults(scenario);
-        const startTime = performance.now();
+        missionLine.textContent = scenario.mission;
+        rankHeader.textContent = scenario.header;
         
-        rankList.innerHTML = results.map((result, index) => `
+        rankList.innerHTML = scenario.results.map((result, index) => `
           <div class="rank-item">
             <div class="rank-number">${index + 1}.</div>
             <div class="rank-option">${result.option}</div>
@@ -254,52 +195,26 @@
           </div>
         `).join('');
         
-        const latency = Math.round(performance.now() - startTime + 38 + Math.random() * 8);
-        statusText.textContent = `Latency: ${latency}ms`;
+        statusText.textContent = 'COMPUTE: <50ms';
         isProcessing = false;
-      }, 150);
+      }, 100);
     }
     
-    function generateResults(scenario) {
-      return options.map((option, i) => {
-        let hash = 0;
-        const combined = option + scenario;
-        for (let j = 0; j < combined.length; j++) {
-          hash = ((hash << 5) - hash) + combined.charCodeAt(j);
-          hash = hash & hash;
-        }
-        const baseScore = 0.4 + (Math.abs(hash % 450) / 1000);
-        return { option, score: Math.round(baseScore * 1000) / 1000 };
-      }).sort((a, b) => b.score - a.score);
-    }
-    
-    // Event listeners
-    document.getElementById('scenarioInput').addEventListener('input', calculate);
-    document.getElementById('scenarioInput').addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') {
-        this.blur();
+    // Keyboard controls
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'ArrowRight' && currentScenario === 'initial') {
+        currentScenario = 'roeShift';
+        displayScenario('roeShift');
+      } else if (e.key === 'ArrowLeft' && currentScenario === 'roeShift') {
+        currentScenario = 'initial';
+        displayScenario('initial');
       }
-    });
-    
-    // Option editing
-    document.querySelectorAll('.option-input').forEach(input => {
-      input.addEventListener('input', function() {
-        const index = parseInt(this.dataset.index);
-        options[index] = this.value;
-        calculate();
-      });
     });
     
     // Initialize
     updateTimestamp();
     setInterval(updateTimestamp, 1000);
-    calculate();
-    
-    // Demo sequence
-    setTimeout(() => {
-      document.getElementById('scenarioInput').value = 'AIR-DEF / 18 INBOUND / CIVILIAN AIRCRAFT ENTERS GRID';
-      calculate();
-    }, 8000);
+    displayScenario('initial');
   </script>
 </body>
 </html>
