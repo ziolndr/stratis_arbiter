@@ -142,25 +142,25 @@
     
     const scenarios = {
       initial: {
-        mission: 'AIR-DEF / 18 INBOUND / CORRIDOR LIVE',
+        mission: 'ASSET-ALLOC / 4 SECTORS / RESERVES LIMITED',
         header: 'ARBITER RANK:',
         results: [
-          { option: 'THAAD β', score: 0.842 },
-          { option: 'Patriot A', score: 0.804 },
-          { option: 'EW Dampening', score: 0.611 },
-          { option: 'NASAMS Net', score: 0.588 },
-          { option: 'Iron Dome C', score: 0.402 }
+          { option: 'Mobile reserve strategy', score: 0.724 },
+          { option: 'Forward deployed screening', score: 0.689 },
+          { option: 'Sector 1-3 focus, sector 4 minimal', score: 0.656 },
+          { option: 'Balanced 4-sector distribution', score: 0.598 },
+          { option: 'Heavy concentration sector 2', score: 0.512 }
         ]
       },
-      roeShift: {
-        mission: 'AIR-DEF / 18 INBOUND / CIVILIAN AIRCRAFT ENTERS GRID',
-        header: 'ARBITER RANK (ROE SHIFT APPLIED):',
+      constraintShift: {
+        mission: 'ASSET-ALLOC / 4 SECTORS / RESERVES UNLIMITED',
+        header: 'ARBITER RANK (CONSTRAINT SHIFT):',
         results: [
-          { option: 'EW Dampening', score: 0.891 },
-          { option: 'NASAMS Net', score: 0.823 },
-          { option: 'THAAD β', score: 0.756 },
-          { option: 'Patriot A', score: 0.634 },
-          { option: 'Iron Dome C', score: 0.445 }
+          { option: 'Forward deployed screening', score: 0.813 },
+          { option: 'Balanced 4-sector distribution', score: 0.756 },
+          { option: 'Heavy concentration sector 2', score: 0.692 },
+          { option: 'Sector 1-3 focus, sector 4 minimal', score: 0.534 },
+          { option: 'Mobile reserve strategy', score: 0.445 }
         ]
       }
     };
@@ -203,9 +203,9 @@
     // Keyboard controls
     document.addEventListener('keydown', function(e) {
       if (e.key === 'ArrowRight' && currentScenario === 'initial') {
-        currentScenario = 'roeShift';
-        displayScenario('roeShift');
-      } else if (e.key === 'ArrowLeft' && currentScenario === 'roeShift') {
+        currentScenario = 'constraintShift';
+        displayScenario('constraintShift');
+      } else if (e.key === 'ArrowLeft' && currentScenario === 'constraintShift') {
         currentScenario = 'initial';
         displayScenario('initial');
       }
